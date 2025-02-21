@@ -14,9 +14,9 @@ fileSeqMembrane = 'seqTransmembrane.txt'
 printData = True
 
 
-def loadSeq(path, catSeqs):
+def loadSeq(path, concatSeqs):
     with open(path, 'r') as file:
-        if catSeqs:
+        if concatSeqs:
             # Load sequeces as one long string
             loadedSeq = file.read().replace('\n', '')
             loadedSeqLen = len(loadedSeq)
@@ -35,7 +35,7 @@ def loadSeq(path, catSeqs):
 
 def transitionProb(fileName):
     # Load sequences
-    seq, totalAA = loadSeq(path=fileName, catSeqs=True)
+    seq, totalAA = loadSeq(path=fileName, concatSeqs=True)
 
     # Calculate: Counts AA
     counts = {}
@@ -106,8 +106,8 @@ def transitionProb(fileName):
 
 def emissionProb(filePathSoluble, filePathMembrane):
     # Load sequences
-    seqSolu = loadSeq(path=filePathSoluble, catSeqs=False)
-    seqMem = loadSeq(path=filePathMembrane, catSeqs=False)
+    seqSolu = loadSeq(path=filePathSoluble, concatSeqs=False)
+    seqMem = loadSeq(path=filePathMembrane, concatSeqs=False)
 
     # Calculate: Counts AA
     countsSolu = {}
