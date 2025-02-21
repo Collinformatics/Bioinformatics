@@ -2,11 +2,6 @@
     # States: Soluble (S) or Transmembrane (T)
 
 
-import numpy as np
-import pandas as pd
-import sys
-
-
 protein = 'KNSFFFFFFFLIII'
 fileSeqState = 'seqState.txt'
 fileSeqSoluble = 'seqSoluble.txt'
@@ -18,24 +13,24 @@ def loadSeq(path, concatSeqs):
     with open(path, 'r') as file:
         if concatSeqs:
             # Load sequeces as one long string
-            loadedSeq = file.read().replace('\n', '')
-            loadedSeqLen = len(loadedSeq)
+            loadedSeq = [file.read().replace('\n', '')]
+            loadedSeqLen = len(loadedSeq[0])
             if printData:
-                print(f'File: {path}\n'
-                      f'Sequence length: {loadedSeqLen:,}')
+                print(f'Loading File: {path}\n'
+                      f'     Sequence length: {loadedSeqLen:,}\n')
             return loadedSeq, loadedSeqLen
         else:
             # Load sequeces as individual strings
             loadedSeq = file.read().strip().split('\n')
             if printData:
-                print(f'File: {path}\n'
-                      f'Sequence length: {loadedSeqLen:,}')
+                print(f'Loading File: {path}')
             return loadedSeq
 
 
 def transitionProb(fileName):
     # Load sequences
     seq, totalAA = loadSeq(path=fileName, concatSeqs=True)
+    seq = seq[0]
 
     # Calculate: Counts AA
     counts = {}
@@ -49,7 +44,7 @@ def transitionProb(fileName):
     frequency = {AA: count / totalAA for AA, count in counts.items()}
     frequency = sorted(frequency.items())
     if printData:
-        print('Amino Acid Frequency:')
+        print('Amino Acid probability:')
         for index in range(0, len(frequency), 2):
             AA1, freq1 = frequency[index]
             if index + 1 < len(frequency):
@@ -100,14 +95,16 @@ def transitionProb(fileName):
     if printData:
         print(f'\nTransition Probabilities:\n'
               f'{transitionMatrix}\n\n')
+    # sys.exit()
 
-    return transitionMatrix
+    return transitionMatrix, frequency
 
 
 def emissionProb(filePathSoluble, filePathMembrane):
     # Load sequences
     seqSolu = loadSeq(path=filePathSoluble, concatSeqs=False)
     seqMem = loadSeq(path=filePathMembrane, concatSeqs=False)
+    print(type(seqSolu))
 
     # Calculate: Counts AA
     countsSolu = {}
@@ -135,7 +132,7 @@ def emissionProb(filePathSoluble, filePathMembrane):
     frequencyMem = {AA: count / totalAAMem for AA, count in countsMem.items()}
     frequencyMem = sorted(frequencyMem.items())
     if printData:
-        print('Amino Acid Frequency:')
+        print('Amino Acid Frequency: Soluble proteins')
         for index in range(0, len(frequencySolu), 2):
             AA1, freq1 = frequencySolu[index]
             if index + 1 < len(frequencySolu):
@@ -143,7 +140,7 @@ def emissionProb(filePathSoluble, filePathMembrane):
                 print(f'     {AA1}: {freq1:.6f}     {AA2:}: {freq2:.6f}')
             else:
                 print(f'     {AA1}: {freq1:.6f}')
-        print('\n')
+        print('\nAmino Acid Frequency: Transmembrane proteins')
         for index in range(0, len(frequencyMem), 2):
             AA1, freq1 = frequencyMem[index]
             if index + 1 < len(frequencyMem):
@@ -151,6 +148,7 @@ def emissionProb(filePathSoluble, filePathMembrane):
                 print(f'     {AA1}: {freq1:.6f}     {AA2:}: {freq2:.6f}')
             else:
                 print(f'     {AA1}: {freq1:.6f}')
+
     frequencySolu = dict(frequencySolu)
     frequencyMem = dict(frequencyMem)
 
@@ -165,13 +163,16 @@ def emissionProb(filePathSoluble, filePathMembrane):
     if printData:
         print(f'\nEmission Probability Matrix:\n'
               f'{emissionProbDF.map(lambda x: f'{x:.3f}')}\n\n'
-              f'Sum: {sum(emissionProbDF.iloc[:,0])}    {sum(emissionProbDF.iloc[:,1])}')
+              f'Sum: {sum(emissionProbDF.iloc[:,0])}'
+              f'    {sum(emissionProbDF.iloc[:,1])}\n\n')
 
     return emissionProbDF
 
 
-def viterbi(proteins, transitionMatrix, emissionMatrix, states):
-    # if printData:
+def viterbi(proteins, initialStateProb, transitionMatrix, emissionMatrix, initialRun):
+    states = ['S', 'T']
+
+    # if printData
     print(f'Viterbi Algorithm:\n'
           f'     States: {states}\n\n'
           f'Transition Probabilities:\n{transitionMatrix}\n\n'
@@ -181,55 +182,79 @@ def viterbi(proteins, transitionMatrix, emissionMatrix, states):
     for seq in proteins:
         seqLen = len(seq)
 
-        # V[i][j] stores the highest probability at position i with state j
-        V = np.zeros((seqLen, len(states)))
+        # viterbiMatrix stores the highest probability at position i with each state
+        viterbiMatrix = pd.DataFrame(0.0,
+                                     index=range(seqLen),
+                                     columns=states)
         backpointer = np.zeros((seqLen, len(states)),
-                               dtype=int)  # backpointer for backtracking
+                               dtype=int) # Backpointer for backtracking
 
         # Initial probabilities for the first amino acid
         for indexState, state in enumerate(states):
-            V[0, indexState] = (emissionMatrix[state].get(seq[0], 0) *
-                                (1 / len(states)))
+            viterbiMatrix.iloc[0, indexState] = (emissionMatrix[state].get(seq[0], 0) *
+                                initialStateProb[state])
 
-        # Fill in the path matrix (V)
+        # Fill in the path matrix (viterbiMatrix)
         for index in range(1, seqLen):
             for indexState, state in enumerate(states):
                 probMax = -1  # Maximum probability
                 stateMax = -1  # State with the maximum probability
                 for indexStatePrev, statePrev in enumerate(states):
-                    prob = (V[index - 1, indexStatePrev] *
-                            transitionMatrix[statePrev][state] * \
+                    prob = (viterbiMatrix.iloc[index - 1, indexStatePrev] *
+                            transitionMatrix[statePrev][state] *
                             emissionMatrix[state].get(seq[index], 0))
                     if prob > probMax:
                         probMax = prob
                         stateMax = indexStatePrev
 
-                V[index, indexState] = probMax
+                viterbiMatrix.iloc[index, indexState] = probMax
                 backpointer[index, indexState] = stateMax
+        if initialRun:
+            print(f'Vterbi Matrix:\n{viterbiMatrix}\n')
 
         # Find the most likely sequence of states
         sequence = ''
-        statePrev = np.argmax(V[seqLen - 1])
+        statePrev = np.argmax(viterbiMatrix.iloc[seqLen - 1])
         sequence += states[statePrev]
 
         # Backtrack through the Viterbi matrix
         for index in range(seqLen - 2, -1, -1):
             statePrev = backpointer[index + 1, statePrev]
             sequence += states[statePrev]
+        sequence = sequence[::-1] # Reverse the sequence since we backtracked
         seqStates.append(sequence)
 
     for index in range(len(proteins)):
         print(f'Sequence: {proteins[index]}\n'
               f'State Sequence: {seqStates[index]}\n')
+    print('')
+    
+    # Evaluate: Average T segments
+    if not initialRun:
+        proteinStatesConcat = ''
+        for protein in seqStates:
+            proteinStatesConcat += protein
+        print(proteinStatesConcat)
+
 
 
 # Evaluate training and experimantal data
-freqTransition = transitionProb(fileName=fileSeqState)
+freqTransition, probStates = transitionProb(fileName=fileSeqState)
 emissionProbabilities = emissionProb(filePathSoluble=fileSeqSoluble,
                                      filePathMembrane=fileSeqMembrane)
 
 # Predict states
 viterbi(proteins=[protein],
+        initialStateProb=probStates,
         transitionMatrix=freqTransition,
         emissionMatrix=emissionProbabilities,
-        states=['S', 'T'])
+        initialRun=True)
+
+
+# Problem: 2
+seqMembrane = loadSeq(path=fileSeqMembrane, concatSeqs=False)
+viterbi(proteins=seqMembrane,
+        initialStateProb=probStates,
+        transitionMatrix=freqTransition,
+        emissionMatrix=emissionProbabilities,
+        initialRun=False)
