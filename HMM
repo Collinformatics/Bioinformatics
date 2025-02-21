@@ -17,6 +17,7 @@ printData = True
 def loadSeq(path, catSeqs):
     with open(path, 'r') as file:
         if catSeqs:
+            # Load sequeces as one long string
             loadedSeq = file.read().replace('\n', '')
             loadedSeqLen = len(loadedSeq)
             if printData:
@@ -24,6 +25,7 @@ def loadSeq(path, catSeqs):
                       f'Sequence length: {loadedSeqLen:,}')
             return loadedSeq, loadedSeqLen
         else:
+            # Load sequeces as individual strings
             loadedSeq = file.read().strip().split('\n')
             if printData:
                 print(f'File: {path}\n'
