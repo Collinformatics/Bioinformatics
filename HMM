@@ -108,7 +108,6 @@ def emissionProb(filePathSoluble, filePathMembrane):
     # Load sequences
     seqSolu = loadSeq(path=filePathSoluble, concatSeqs=False)
     seqMem = loadSeq(path=filePathMembrane, concatSeqs=False)
-    print(type(seqSolu))
 
     # Calculate: Counts AA
     countsSolu = {}
