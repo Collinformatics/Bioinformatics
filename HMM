@@ -2,6 +2,10 @@
     # States: Soluble (S) or Transmembrane (T)
 
 
+import pandas as pd
+import numpy as np
+
+
 protein = 'KNSFFFFFFFLIII'
 fileSeqState = 'seqState.txt'
 fileSeqSoluble = 'seqSoluble.txt'
