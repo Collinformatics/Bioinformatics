@@ -1,5 +1,8 @@
 protein = 'SKADYEK'
+fileName = 'rosalind_prtm.txt'
 sigfigs = 3
+
+
 
 mass = {
     'A': 71.03711,
@@ -24,9 +27,29 @@ mass = {
     'Y': 163.06333
 }
 
-def calculateMonoisotopicMass(proteinSequence):
-    totalMass = sum(mass[AA] for AA in proteinSequence)
-    return totalMass
+def calculateMass(proteinSeq, seqTag):
+    MW = sum(mass[AA] for AA in proteinSeq)
+    print(f"Monoisotopic Mass of {seqTag}: {MW:.{sigfigs}f} g/mol\n")
 
-MW = calculateMonoisotopicMass(protein)
-print(f"Monoisotopic Mass of {protein}: {MW:.{sigFi}f} Da")
+def loadSeq(path, concatSeqs):
+    printData = True
+    with open(path, 'r') as file:
+        if concatSeqs:
+            # Load sequeces as one long string
+            loadedSeq = [file.read().replace('\n', '')]
+            loadedSeqLen = len(loadedSeq[0])
+            if printData:
+                print(f'Loading File: {path}\n'
+                      f'     Sequence length: {loadedSeqLen:,}\n')
+            return loadedSeq, loadedSeqLen
+        else:
+            # Load sequeces as individual strings
+            loadedSeq = file.read().strip().split('\n')
+            if printData:
+                print(f'Loading File: {path}')
+            return loadedSeq
+
+
+calculateMass(proteinSeq=protein, seqTag=protein)
+seqs = loadSeq(path=fileName, concatSeqs=False)
+calculateMass(proteinSeq=seqs[0], seqTag=fileName.replace('.txt', ''))
