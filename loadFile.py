@@ -26,6 +26,6 @@ def loadFasta(path, printData):
         for recordID, sequence in data.items():
             print(f'ID: {recordID} (name|id|description)\n'
                   f'Sequence: {sequence}\n')
-        print(f'File:\n     {path}\n\n')
+        print(f'Loaded File:\n     {path}\n\n')
     return data
     
