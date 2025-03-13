@@ -51,7 +51,7 @@ def frequency(sequences, saveFreq, savePath):
             for vector in vectorsRF:
                 print(vector)
                 file.write(vector + '\n')  # Write each vector on a new line
-        print(f"AA Frequency data saved at:\n"
+        print(f"\nVectors saved at:\n"
             f"     {savePath}\n")
 
     return sequences
