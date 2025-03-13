@@ -38,17 +38,27 @@ def frequency(sequences, saveFreq, savePath):
             'RF': rf
         }
         if printData:
-            print(f'\n{ID}\n{sequences[ID]}\n\n')
+            print(f'Processed Data:\n'
+                  f'     {ID}\n'
+                  f'     {sequences[ID]}\n')
             printData = False
 
     if saveFreq:
-        # # Save vectorsRF to a text file
-        # with open(savePath, 'w') as file:
-        #     for vector in vectorsRF:
-        #         file.write(vector + '\n')  # Write each vector on a new line
+        # Save vectorsRF to a text file
+        with open(savePath, 'w') as file:
+            for vector in vectorsRF:
+                file.write(vector + '\n')  # Write each vector on a new line
 
-        print(f"AA Frequency saved at:\n"
-            f"     {savePath}\n\n")
+        print(f"AA Frequency data saved at:\n"
+            f"     {savePath}\n")
 
     return sequences
-    
+
+
+# Load sequences
+data = loadFasta(path=pathProteins, printData=printSeqs)
+
+# Evaluate proteins
+saveData = True
+data = frequency(sequences=data, saveFreq=saveData,
+                 savePath= pathProteins.replace('.fasta.txt', 'Freq.txt'))
