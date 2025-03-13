@@ -1,5 +1,5 @@
 from Bio.Seq import Seq
-from loadTxtFile import loadSeq
+from loadFile import loadSeq
 import re
 
 
