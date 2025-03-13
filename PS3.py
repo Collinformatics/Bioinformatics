@@ -9,8 +9,8 @@ printSeqs = True
 
 
 def frequency(sequences):
-    aminoAcids = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-                  "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+    aminoAcids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
+                  'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
     printData = True
     counts = pd.DataFrame(0, index=aminoAcids, columns=['Counts'])
 
@@ -20,7 +20,8 @@ def frequency(sequences):
 
         # Count the AAs
         for AA in sequence:
-            counts.loc[AA, 'Counts'] += 1
+            if AA in aminoAcids:
+                counts.loc[AA, 'Counts'] += 1
 
         # Calculate relative frequency of the AAs
         rf = pd.DataFrame(0.0, index=aminoAcids, columns=['RF'])
