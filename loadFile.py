@@ -23,6 +23,7 @@ def loadFasta(path, printData):
     data = {record.id: record.seq for record in SeqIO.parse(path, "fasta")}
 
     if printData:
+        print(f'Loading file:\n{path}\n\n')
         for recordID, sequence in data.items():
             print(f'ID: {recordID} (name|id|description)\n'
                   f'Sequence: {sequence}\n')
