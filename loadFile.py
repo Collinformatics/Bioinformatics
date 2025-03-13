@@ -20,12 +20,11 @@ def loadSeq(path, concatSeqs):
 def loadFasta(path, printData):
     from Bio import SeqIO
 
-    proteins = SeqIO.parse(path, "fasta")
+    data = {record.id: record.seq for record in SeqIO.parse(path, "fasta")}
+
     if printData:
-        # Parse the file and iterate over each record
-        for record in proteins:
-            print(f'ID: {record.id}\n'
-                  f'Description: {record.description}\n'
-                  f'Sequence: {record.seq}\n')
-    return proteins
+        for recordID, sequence in data.items():
+            print(f'ID: {recordID} (name|id|description)\n'
+                  f'Sequence: {sequence}\n')
+    return data
     
