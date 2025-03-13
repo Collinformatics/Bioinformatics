@@ -6,6 +6,7 @@ import sys
 # Specify the file path
 pathProteins = 'ProteinsHuman.fasta.txt'
 printSeqs = True
+saveData = True
 
 
 def frequency(sequences, saveFreq, savePath):
@@ -15,7 +16,7 @@ def frequency(sequences, saveFreq, savePath):
     counts = pd.DataFrame(0, index=aminoAcids, columns=['Counts'])
     vectorsRF = []
 
-
+    # Evaluate the data
     for ID, sequence in sequences.items():
         seqLength = len(sequence)
 
@@ -29,7 +30,8 @@ def frequency(sequences, saveFreq, savePath):
         for AA in counts.index:
             rf.loc[AA, 'RF'] = counts.loc[AA, 'Counts'] / seqLength
         rf = rf['RF'].tolist() # Convert to a list
-        vectorsRF.append(f'{ID} '.join(map(str, rf)))
+        rfVector = f"{ID} " + " ".join(map(str, rf))
+        vectorsRF.append(rfVector)
 
 
         # Add RF list to the dictionary
@@ -47,8 +49,8 @@ def frequency(sequences, saveFreq, savePath):
         # Save vectorsRF to a text file
         with open(savePath, 'w') as file:
             for vector in vectorsRF:
+                print(vector)
                 file.write(vector + '\n')  # Write each vector on a new line
-
         print(f"AA Frequency data saved at:\n"
             f"     {savePath}\n")
 
@@ -59,6 +61,5 @@ def frequency(sequences, saveFreq, savePath):
 data = loadFasta(path=pathProteins, printData=printSeqs)
 
 # Evaluate proteins
-saveData = True
 data = frequency(sequences=data, saveFreq=saveData,
                  savePath= pathProteins.replace('.fasta.txt', 'Freq.txt'))
