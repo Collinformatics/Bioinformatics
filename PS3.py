@@ -16,6 +16,7 @@ def frequency(sequences, printData, saveFreq, savePath):
     aminoAcids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
                   'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
     vectorsRF = []
+    printNumber = 100 # Print every nth number datapoint
 
     # Evaluate the data
     iteration = 0
@@ -43,18 +44,16 @@ def frequency(sequences, printData, saveFreq, savePath):
         }
 
         if printData:
-            if iteration % 100 == 0:
-                print(f'Sequence: {iteration}\n'
-                      f'     {ID}\n'
-                      f'     {rf}\n')
+            if iteration % printNumber == 0:
+                print(f'Index {iteration:,}: {ID}\n'
+                      f'{rf}\n')
             iteration += 1
 
     if saveFreq:
         # Save vectors to a text file
         with open(savePath, 'w') as file:
             for vector in vectorsRF:
-                print(vector)
-                file.write(vector + '\n')  # Write each vector on a new line
+                file.write(vector + '\n')
 
     return sequences
 
@@ -64,4 +63,4 @@ data = loadFasta(path=pathProteins, printData=printSeqs)
 
 # Evaluate proteins
 data = frequency(sequences=data, printData=printData, saveFreq=saveData,
-                 savePath= pathProteins.replace('.fasta.txt', 'FreqAA.txt'))
+                 savePath=pathProteins.replace('.fasta.txt', 'FreqAA.txt'))
