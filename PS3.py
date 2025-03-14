@@ -1,6 +1,6 @@
 from loadFile import loadFasta
 import pandas as pd
-import sys
+
 
 
 # Specify the file path
@@ -52,6 +52,7 @@ def frequency(sequences, printData, saveFreq, savePath):
     if saveFreq:
         # Save vectors to a text file
         with open(savePath, 'w') as file:
+            file.write(" " + " ".join(aminoAcids) + '\n')
             for vector in vectorsRF:
                 file.write(vector + '\n')
 
